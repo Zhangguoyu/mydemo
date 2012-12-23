@@ -3,7 +3,6 @@ package com.iplusplus.aboutwish;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,9 +14,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.iplusplus.aboutwish.app.WishActivity;
 import com.iplusplus.aboutwish.widget.AWishListView;
 
-public class MainActivity extends Activity {
+public class MainActivity extends WishActivity {
 
 	private ListView mLsvWishList;
 	private EditText mEdtInput;
