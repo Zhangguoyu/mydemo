@@ -1,10 +1,13 @@
 package com.iplusplus.aboutwish;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -16,13 +19,14 @@ import android.widget.TextView;
 
 import com.iplusplus.aboutwish.app.WishActivity;
 import com.iplusplus.aboutwish.widget.AWishListView;
+import com.iplusplus.aboutwish.widget.AWishListView.OnWishListener;
 
-public class MainActivity extends WishActivity {
+public class MainActivity extends WishActivity implements OnWishListener {
 
 	private ListView mLsvWishList;
 	private EditText mEdtInput;
 	private AWishListView mAwListView;
-	
+
 	private MyAdapter mAdapter;
 
 	@Override
@@ -30,9 +34,9 @@ public class MainActivity extends WishActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mAwListView = (AWishListView) findViewById(R.id.aw_listview);
-		mEdtInput = mAwListView.getInputView();
+		mAwListView.setOnWishListener(this);
 		mLsvWishList = mAwListView.getListView();
-		
+
 		List<String> list = new ArrayList<String>();
 		list.add("我要 一颗苹果");
 		list.add("我要 一颗苹果");
@@ -102,20 +106,38 @@ public class MainActivity extends WishActivity {
 			if (convertView == null) {
 				convertView = mInflater.inflate(R.layout.list_item, null);
 				holder = new ViewHolder();
-				holder.textView = (TextView) convertView
-						.findViewById(R.id.wish_item);
+				holder.txvWishContent = (TextView) convertView
+						.findViewById(R.id.wish_content);
+				holder.txvWishDate = (TextView) convertView
+						.findViewById(R.id.wish_date);
+				holder.txvWishRelay = (TextView) convertView
+						.findViewById(R.id.wish_relay);
+				holder.txvWishSupport = (TextView) convertView
+						.findViewById(R.id.wish_support);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			holder.textView.setText(getItem(position));
+			holder.txvWishContent.setText(getItem(position));
+			holder.txvWishDate.setText(new SimpleDateFormat("yyyy/MM/dd").format(new Date()));
+			holder.txvWishRelay.setText(""+709);
+			holder.txvWishSupport.setText("" + 1040);
 			return convertView;
 		}
 
 	}
 
 	private static class ViewHolder {
-		TextView textView;
+		TextView txvWishContent;
+		TextView txvWishDate;
+		TextView txvWishRelay;
+		TextView txvWishSupport;
+	}
+
+	@Override
+	public void onWish(String wish) {
+		// TODO Auto-generated method stub
+		Log.d("MainActivity", "OnWish " + wish);
 	}
 }

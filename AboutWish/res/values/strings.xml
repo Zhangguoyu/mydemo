@@ -4,5 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">About Wish</string>
+    <string name="wo_yao">我要</string>
 
 </resources>
