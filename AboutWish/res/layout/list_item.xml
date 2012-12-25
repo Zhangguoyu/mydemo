@@ -1,13 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-    <TextView 
-        android:id="@+id/wish_item"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/list_item_padding_bottom" >
+
+    <TextView
+        android:id="@+id/wish_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="40dp"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="14dp"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/wish_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/wish_content"
+        android:layout_below="@+id/wish_content"
+        android:layout_marginTop="16dp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/wish_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/wish_date"
+        android:layout_alignBottom="@+id/wish_date"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="14dp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/wish_relay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/wish_support"
+        android:layout_alignBottom="@+id/wish_support"
+        android:layout_marginRight="14dp"
+        android:layout_toLeftOf="@+id/wish_support"
+        android:text="TextView" />
+
+</RelativeLayout>

@@ -9,33 +9,50 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ListView.FixedViewInfo;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+
+import com.iplusplus.aboutwish.R;
 
 public class AWishListView extends FrameLayout {
+
+	public interface OnWishListener {
+
+		void onWish(String wish);
+	}
 
 	private static final int INPUT_VIEW_PADDING_BOTTOM = 50;
 
 	private MyListView mListView;
 
-	private MyEditText mInputView;
-	
+	private MyInputbar mInputView;
+
 	private InputMethodManager mInputMethodManager;
-	
+
 	private InputViewLayoutInfo mInputViewLayoutInfo;
-	
+
 	private boolean mOnlyRequestInputViewLayout = false;
 	
+	private boolean mButtonClicked = false;
+
+	private OnWishListener mListener;
+
 	private static class InputViewLayoutInfo {
 		int bottom;
 		boolean keepFixedPadding;
@@ -60,43 +77,55 @@ public class AWishListView extends FrameLayout {
 	}
 
 	private void initChilds(AttributeSet attrs) {
-		
+
 		mInputViewLayoutInfo = new InputViewLayoutInfo();
 		mInputViewLayoutInfo.bottom = -1;
 		mInputViewLayoutInfo.keepFixedPadding = true;
-		
+
 		final Context c = getContext();
 		mListView = new MyListView(c, attrs);
-		mInputView = new MyEditText(c, attrs);
+		mInputView = new MyInputbar(c, attrs);
 		LayoutParams p = (LayoutParams) generateDefaultLayoutParams();
-		
+
 		addViewInLayout(mListView, -1, p);
 		addViewInLayout(mInputView, -1, p);
-		
-		mInputMethodManager = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
-	}
 
-	public EditText getInputView() {
-		return mInputView;
+		mInputMethodManager = (InputMethodManager) c
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
 	}
 
 	public ListView getListView() {
 		return mListView;
 	}
 
+	public void setOnWishListener(OnWishListener l) {
+		mListener = l;
+	}
+
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		
-		if(!mOnlyRequestInputViewLayout && !mInputView.isFocused()) {
-			super.onLayout(changed, left, top, right, bottom);
-		} else {
-			mInputView.layout(mInputViewLayoutInfo.left, 
-					mInputViewLayoutInfo.bottom-mInputViewLayoutInfo.height, 
-					mInputViewLayoutInfo.right, 
-					mInputViewLayoutInfo.bottom);
-			mOnlyRequestInputViewLayout = false;
-		}
+//		Log.d("AWishListView", "onLayout " + mOnlyRequestInputViewLayout 
+//				+ " " + mInputView.editText.isFocused() 
+//				+ " " + mInputView.button.isFocused());
+//		if (!mOnlyRequestInputViewLayout && !mInputView.editText.isFocused()) {
+//			super.onLayout(changed, left, top, right, bottom);
+//			if(mButtonClicked) {
+//				mButtonClicked = false;
+//				mInputView.layout(mInputViewLayoutInfo.left,
+//						mInputViewLayoutInfo.bottom - mInputViewLayoutInfo.height,
+//						mInputViewLayoutInfo.right, mInputViewLayoutInfo.bottom);
+//			}
+//		} else {
+//			mInputView.layout(mInputViewLayoutInfo.left,
+//					mInputViewLayoutInfo.bottom - mInputViewLayoutInfo.height,
+//					mInputViewLayoutInfo.right, mInputViewLayoutInfo.bottom);
+//			mOnlyRequestInputViewLayout = false;
+//		}
+		super.onLayout(changed, left, top, right, bottom);
+		mInputView.layout(mInputViewLayoutInfo.left,
+				mInputViewLayoutInfo.bottom - mInputViewLayoutInfo.height,
+				mInputViewLayoutInfo.right, mInputViewLayoutInfo.bottom);
 	}
 
 	@Override
@@ -205,89 +234,136 @@ public class AWishListView extends FrameLayout {
 		}
 
 	}
-	
+
 	private void onStartScroll(AbsListView view, View header) {
-		mInputViewLayoutInfo.keepFixedPadding = 
-				!(header.getBottom()-INPUT_VIEW_PADDING_BOTTOM < mInputViewLayoutInfo.bottom);
+		mInputViewLayoutInfo.keepFixedPadding = !(header.getBottom()
+				- INPUT_VIEW_PADDING_BOTTOM < mInputViewLayoutInfo.bottom);
 	}
-	
-	private void onScrolling(AbsListView view, View header, 
+
+	private void onScrolling(AbsListView view, View header,
 			int firstVisibleItem, boolean positiveDirection, int dy) {
 		boolean needRequestLayout = false;
 		if (firstVisibleItem == 0) {
 			final int headerBottom = header.getBottom();
 			int delta = headerBottom - mInputViewLayoutInfo.bottom;
 			int newBottom;
-			if(delta > INPUT_VIEW_PADDING_BOTTOM || mInputViewLayoutInfo.keepFixedPadding) {
-				
-				if(!mInputViewLayoutInfo.keepFixedPadding && delta > INPUT_VIEW_PADDING_BOTTOM) {
+			if (delta > INPUT_VIEW_PADDING_BOTTOM
+					|| mInputViewLayoutInfo.keepFixedPadding) {
+
+				if (!mInputViewLayoutInfo.keepFixedPadding
+						&& delta > INPUT_VIEW_PADDING_BOTTOM) {
 					mInputViewLayoutInfo.keepFixedPadding = true;
 				}
 				newBottom = headerBottom - INPUT_VIEW_PADDING_BOTTOM;
-				
+
 			} else {
-				
+
 				newBottom = mInputViewLayoutInfo.bottom;
 				newBottom += dy;
-				if(newBottom > mInputViewLayoutInfo.height + 20) {
+				if (newBottom > mInputViewLayoutInfo.height + 20) {
 					newBottom = mInputViewLayoutInfo.height + 20;
 				} else if (newBottom < -1) {
 					newBottom = -1;
 				}
 			}
-			
-			if(needRequestLayout = (newBottom != mInputViewLayoutInfo.bottom)) {
+
+			if (needRequestLayout = (newBottom != mInputViewLayoutInfo.bottom)) {
 				mInputViewLayoutInfo.bottom = newBottom;
 			}
-			
+
 		} else {
-			
-			if(mInputViewLayoutInfo.keepFixedPadding) {
+
+			if (mInputViewLayoutInfo.keepFixedPadding) {
 				mInputViewLayoutInfo.keepFixedPadding = false;
 			}
-			
+
 			int newBottom = mInputViewLayoutInfo.bottom;
 			newBottom += dy;
-			if(newBottom > mInputViewLayoutInfo.height + 20) {
+			if (newBottom > mInputViewLayoutInfo.height + 20) {
 				newBottom = mInputViewLayoutInfo.height + 20;
 			} else if (newBottom < -1) {
 				newBottom = -1;
 			}
-			
-			if(needRequestLayout = (newBottom != mInputViewLayoutInfo.bottom)) {
+
+			if (needRequestLayout = (newBottom != mInputViewLayoutInfo.bottom)) {
 				mInputViewLayoutInfo.bottom = newBottom;
 			}
 		}
-		
-		if(needRequestLayout) {
+
+		if (needRequestLayout) {
 			mOnlyRequestInputViewLayout = true;
 			requestLayout();
 		}
 	}
-	
+
 	private void onEndScroll(AbsListView view, View header) {
 	}
-	
-	private class MyEditText extends EditText {
 
-		public MyEditText(Context context, AttributeSet attrs) {
-			super(context, attrs);
+	private void clearInputViewFocus() {
+		final EditText editText = mInputView.editText;
+		if (mInputMethodManager.isActive(editText)) {
+			mInputMethodManager.hideSoftInputFromWindow(
+					mInputView.getWindowToken(), 0);
 		}
-		
+		if (editText.isFocused()) {
+			editText.clearFocus();
+		}
+	}
+
+	private class MyInputbar extends LinearLayout implements
+			OnFocusChangeListener, OnClickListener, OnEditorActionListener {
+
+		EditText editText;
+		Button button;
+
+		public MyInputbar(Context context, AttributeSet attrs) {
+			super(context, attrs);
+			setOrientation(LinearLayout.HORIZONTAL);
+			LayoutInflater.from(context).inflate(R.layout.input_bar, this);
+			editText = (EditText) findViewById(R.id.input_text);
+			editText.setOnFocusChangeListener(this);
+			editText.setOnEditorActionListener(this);
+			button = (Button) findViewById(R.id.input_button);
+			button.setOnClickListener(this);
+		}
+
 		@Override
 		protected void onLayout(boolean changed, int left, int top, int right,
 				int bottom) {
 			super.onLayout(changed, left, top, right, bottom);
 			mInputViewLayoutInfo.left = left;
 			mInputViewLayoutInfo.right = right;
-			mInputViewLayoutInfo.height = bottom-top;
+			mInputViewLayoutInfo.height = bottom - top;
 		}
-		
+
 		@Override
-		public boolean onKeyUp(int keyCode, KeyEvent event) {
-			return super.onKeyUp(keyCode, event);
+		public void onFocusChange(View v, boolean hasFocus) {
+			if (v.getId() == R.id.input_text && hasFocus) {
+				mOnlyRequestInputViewLayout = true;
+			}
+
 		}
-		
+
+		@Override
+		public void onClick(View v) {
+			mButtonClicked = true;
+			mOnlyRequestInputViewLayout = true;
+			clearInputViewFocus();
+			if (mListener != null) {
+				mListener.onWish(editText.getEditableText().toString());
+			}
+		}
+
+		@Override
+		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+			if (actionId == EditorInfo.IME_ACTION_DONE) {
+				if (mListener != null) {
+					mListener.onWish(editText.getEditableText().toString());
+				}
+			}
+			return false;
+		}
+
 	}
 
 	private class MyListView extends ListView implements OnScrollListener {
@@ -297,17 +373,17 @@ public class AWishListView extends FrameLayout {
 		private final static int HEADER_HEIGHT = 400;
 
 		private FrameLayout mHeader = null;
-		
+
 		private ArrayList<FixedViewInfo> mHeaderViewInfo;
-		
+
 		private int mActivePointerId = -1;
-		
+
 		private int mLastMotionY;
-		
+
 		private boolean mIsScrollingAlongPositiveDirection = true;
-		
+
 		private int mDeltaY;
-		
+
 		private int mScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
 		public MyListView(Context context, AttributeSet attrs) {
@@ -316,35 +392,36 @@ public class AWishListView extends FrameLayout {
 		}
 
 		private void init(Context context) {
-			
+
 			mHeader = new FrameLayout(context);
 			mHeader.setLayoutParams(new AbsListView.LayoutParams(
 					LayoutParams.MATCH_PARENT, HEADER_HEIGHT));
 			mHeader.setBackgroundColor(Color.CYAN);
-			
+
 			mHeaderViewInfo = new ArrayList<ListView.FixedViewInfo>();
 			FixedViewInfo info = new FixedViewInfo();
 			info.data = null;
 			info.view = mHeader;
 			info.isSelectable = false;
 			mHeaderViewInfo.add(info);
-			
+
 			super.setOnScrollListener(this);
 		}
-		
+
 		@Override
 		public boolean onTouchEvent(MotionEvent ev) {
-			final int action = ev.getAction()&MotionEvent.ACTION_MASK;
-			
-			switch(action) {
+			final int action = ev.getAction() & MotionEvent.ACTION_MASK;
+
+			switch (action) {
 			case MotionEvent.ACTION_DOWN:
 				mLastMotionY = (int) ev.getY();
 				mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if(mActivePointerId != -1) {
-					final int y = (int) MotionEventCompat.getY(ev, 
-							MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+				if (mActivePointerId != -1) {
+					final int y = (int) MotionEventCompat.getY(ev,
+							MotionEventCompat.findPointerIndex(ev,
+									mActivePointerId));
 					final int dy = y - mLastMotionY;
 					mDeltaY = dy;
 					mIsScrollingAlongPositiveDirection = dy > 0;
@@ -366,14 +443,16 @@ public class AWishListView extends FrameLayout {
 			}
 			return super.onTouchEvent(ev);
 		}
-		
+
 		private void onSecondaryPointerUp(MotionEvent ev) {
 			final int index = MotionEventCompat.getActionIndex(ev);
 			final int pointerId = MotionEventCompat.getPointerId(ev, index);
-			if(pointerId != mActivePointerId) {
-				int newPointerIndex = index==0?1:0;
-				mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
-				mLastMotionY = (int) MotionEventCompat.getY(ev, newPointerIndex);
+			if (pointerId != mActivePointerId) {
+				int newPointerIndex = index == 0 ? 1 : 0;
+				mActivePointerId = MotionEventCompat.getPointerId(ev,
+						newPointerIndex);
+				mLastMotionY = (int) MotionEventCompat
+						.getY(ev, newPointerIndex);
 			}
 		}
 
@@ -382,17 +461,19 @@ public class AWishListView extends FrameLayout {
 			mScrollListener = l;
 			super.setOnScrollListener(this);
 		}
-		
+
 		@Override
 		public void setAdapter(ListAdapter adapter) {
-			super.setAdapter(new MyHeaderViewListAdapter(mHeaderViewInfo, adapter));
+			super.setAdapter(new MyHeaderViewListAdapter(mHeaderViewInfo,
+					adapter));
 		}
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
 
-			onScrolling(view, mHeader, firstVisibleItem, mIsScrollingAlongPositiveDirection, mDeltaY);
+			onScrolling(view, mHeader, firstVisibleItem,
+					mIsScrollingAlongPositiveDirection, mDeltaY);
 
 			if (mScrollListener != null) {
 				mScrollListener.onScroll(view, firstVisibleItem,
@@ -402,11 +483,11 @@ public class AWishListView extends FrameLayout {
 
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			
-			if(mScrollState != scrollState) {
-				if(scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
+
+			if (mScrollState != scrollState) {
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 					onEndScroll(view, mHeader);
-				} else if (mScrollState == OnScrollListener.SCROLL_STATE_IDLE){
+				} else if (mScrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 					onStartScroll(view, mHeader);
 				}
 			}
@@ -416,45 +497,34 @@ public class AWishListView extends FrameLayout {
 				mScrollListener.onScrollStateChanged(view, scrollState);
 			}
 		}
-		
+
 		@Override
 		public boolean performItemClick(View view, int position, long id) {
 			clearInputViewFocus();
 			return super.performItemClick(view, position, id);
 		}
-		
+
 		@Override
 		public boolean performLongClick() {
 			clearInputViewFocus();
 			return super.performLongClick();
 		}
-		
+
 		@Override
 		public boolean performClick() {
 			clearInputViewFocus();
 			return super.performClick();
 		}
-		
-		private void clearInputViewFocus() {
-			if(mInputMethodManager.isActive(mInputView)) {
-				mInputMethodManager.hideSoftInputFromWindow(
-						mInputView.getWindowToken(), 0);
-			}
-			if(mInputView.isFocused()) {
-				mInputView.clearFocus();
-			}
-		}
 
 	}
-	
+
 	private class MyHeaderViewListAdapter extends HeaderViewListAdapter {
 
 		public MyHeaderViewListAdapter(
 				ArrayList<FixedViewInfo> headerViewInfos, ListAdapter adapter) {
 			super(headerViewInfos, null, adapter);
 		}
-		
-	}
 
+	}
 
 }
