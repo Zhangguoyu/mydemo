@@ -17,7 +17,7 @@ import android.text.TextUtils;
 
 import com.iplusplus.aboutwish.Wish;
 
-public abstract class WishService {
+public abstract class WishService implements IWishService {
 	
 	public static class ResultInfo {
 		boolean result;
@@ -25,55 +25,25 @@ public abstract class WishService {
 		Object data;
 	}
 	
-	public interface RequestCallback {
-		
-		public void onResponse(ResultInfo result);
-		
-	}
-	
-	private List<RequestCallback> mCallbacks;
-	
-	public WishService() {
-		mCallbacks = new ArrayList<WishService.RequestCallback>();
-	}
-	
-	public void registerRequestCallback(RequestCallback callback) {
-		mCallbacks.add(callback);
-	}
-	
-	public void unregisterRequestCallback(RequestCallback callback) {
-		mCallbacks.remove(callback);
-	}
-	
-	public List<RequestCallback> getRequestCallbacks() {
-		return mCallbacks;
-	}
-	
-	public void invokeRequestCallbacks(ResultInfo result) {
-		for(RequestCallback cb : mCallbacks) {
-			cb.onResponse(result);
-		}
+	public ResultInfo postWish(Wish wish) {
+		return execRequest(getPostWishServiceApi(wish));
 	}
 
-	public void postWish(Wish wish) {
-		execRequest(getPostWishServiceApi(wish));
+	public ResultInfo postSupport(Wish wish) {
+		return execRequest(getPostSupportServiceApi(wish));
 	}
 
-	public void postSupport(Wish wish) {
-		execRequest(getPostSupportServiceApi(wish));
+	public ResultInfo postReplay(Wish wish) {
+		return execRequest(getPostRelayServiceApi(wish));
 	}
 
-	public void postReplay(Wish wish) {
-		execRequest(getPostRelayServiceApi(wish));
-	}
-
-	public void requestWishs() {
-		execRequest(getRequestWishsServiceApi());
+	public ResultInfo requestWishs() {
+		return execRequest(getRequestWishsServiceApi());
 	}
 	
-	private void execRequest(String url) {
+	private ResultInfo execRequest(String url) {
 		if(TextUtils.isEmpty(url)) {
-			return;
+			return null;
 		}
 		
 		AndroidHttpClient client = AndroidHttpClient.newInstance("com.iplusplus.aboutwish.api");
@@ -101,8 +71,7 @@ public abstract class WishService {
 		}
 		client.close();
 		
-		ResultInfo ri = handleResponse(url, result, resultCode, sb.toString());
-		invokeRequestCallbacks(ri);
+		return handleResponse(url, result, resultCode, sb.toString());
 		
 	}
 	

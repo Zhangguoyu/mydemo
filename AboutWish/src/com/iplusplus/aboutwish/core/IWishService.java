@@ -1,6 +1,7 @@
 package com.iplusplus.aboutwish.core;
 
 import com.iplusplus.aboutwish.Wish;
+import com.iplusplus.aboutwish.core.WishService.ResultInfo;
 
 /**
  * 
@@ -13,29 +14,29 @@ public interface IWishService {
 	
 	/**
 	 * 获取愿望
-	 * @return 愿望清单
+	 * @return TODO
 	 */
-	public Wish[] getWishs();
+	public ResultInfo requestWishs();
 	
 	/**
 	 * 提交愿望实体
 	 * @param wish 愿望
-	 * @return 操作结果
+	 * @return TODO
 	 */
-	public int post(Wish wish);
+	public ResultInfo postWish(Wish wish);
 	
 	/**
 	 * 支持愿望实体
 	 * @param wish 愿望
-	 * @return 操作结果
+	 * @return TODO
 	 */
-	public int support(Wish wish);
+	public ResultInfo postSupport(Wish wish);
 	
 	/**
 	 * 转发愿望实体
 	 * @param wish 愿望
-	 * @return 操作结果
+	 * @return TODO
 	 */
-	public int replay(Wish wish);
+	public ResultInfo postReplay(Wish wish);
 
 }

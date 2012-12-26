@@ -1,7 +1,5 @@
 package com.iplusplus.aboutwish.core;
 
-import java.io.InputStream;
-
 import android.content.Context;
 
 import com.iplusplus.aboutwish.Wish;
