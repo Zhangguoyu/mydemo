@@ -11,8 +11,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light.NoTitleBar" >
+        android:label="@string/app_name" >
         <activity
             android:name="com.zhangguoyu.demo.actionbar.MainActivity"
             android:label="@string/app_name" >
@@ -21,6 +20,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="block" android:value="com.zhangguoyu.demo.actionbar.CDemoBlock" />
+            <meta-data android:name="blocks" android:resource="@array/blocks"/>
         </activity>
     </application>
 

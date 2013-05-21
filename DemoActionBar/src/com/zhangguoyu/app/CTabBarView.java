@@ -1,6 +1,8 @@
-package com.zhangguoyu.demo.actionbar;
+package com.zhangguoyu.app;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
@@ -12,26 +14,105 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.zhangguoyu.demo.actionbar.CActionBar.Tab;
+import com.zhangguoyu.app.CActionBar.CTab;
+import com.zhangguoyu.demo.actionbar.R;
 
-public class TabBarView extends LinearLayout {
 
-	private TabClickListener mTabClickListener;
+public class CTabBarView extends CButtonBarView {
+
+	private OnTabClickListener mTabClickListener;
 	private int mCurrentSelected = -1;
 
-	public TabBarView(Context context) {
+	public CTabBarView(Context context) {
 		super(context);
+        init(context, null, R.attr.tabBarStyle);
 	}
 	
-	public TabBarView(Context context, AttributeSet attrs) {
+	public CTabBarView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-	}
-	
-	public void addTab(Tab tab, boolean selected) {
+        init(context, attrs, R.attr.tabBarStyle);
+    }
+
+    private void init(Context context, AttributeSet attrs, int defStyle) {
+    }
+
+    @Override
+    protected void onChangeItemTextSize(float size) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final TabView child = (TabView) getChildAt(i);
+            child.mTxvTitle.setTextSize(size);
+        }
+    }
+
+    @Override
+    protected void onChangeItemTextColor(ColorStateList color) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final TabView child = (TabView) getChildAt(i);
+            child.mTxvTitle.setTextColor(color);
+        }
+    }
+
+    @Override
+    protected void onChangeItemTypeface(Typeface tf, int style) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final TabView child = (TabView) getChildAt(i);
+            if(style != -1) {
+                child.mTxvTitle.setTypeface(tf);
+            } else {
+                child.mTxvTitle.setTypeface(tf, style);
+            }
+        }
+    }
+
+    @Override
+    protected void onChangeItemMargin(int left, int top, int right, int bottom) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final View child = getChildAt(i);
+            LayoutParams p = (LayoutParams) child.getLayoutParams();
+            p.leftMargin = left;
+            p.rightMargin = right;
+            p.topMargin = top;
+            p.bottomMargin = bottom;
+            updateViewLayout(child, p);
+        }
+    }
+
+    @Override
+    protected void onChangeItemGravity(int gravity) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final TabView child = (TabView) getChildAt(i);
+            child.mTxvTitle.setGravity(gravity);
+        }
+    }
+
+    @Override
+    public void onChangeItemBackground(Drawable drawable) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final View child = getChildAt(i);
+            child.setBackgroundDrawable(drawable);
+        }
+    }
+
+    @Override
+    public void onChangeItemPadding(int left, int top, int right, int bottom) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final View child = getChildAt(i);
+            child.setPadding(left, top, right, bottom);
+        }
+    }
+
+    public void addTab(CTab tab, boolean selected) {
 		addTab(tab, -1, selected);
 	}
 	
-	public void addTab(Tab tab, int position, boolean selected) {
+	public void addTab(CTab tab, int position, boolean selected) {
         final TabView tabView = createTabView(tab);
         addView(tabView, position, new LayoutParams(
                 0, LayoutParams.MATCH_PARENT, 1));
@@ -70,50 +151,45 @@ public class TabBarView extends LinearLayout {
 		return getChildCount();
 	}
 	
-	private TabView createTabView(Tab tab) {
+	private TabView createTabView(CTab tab) {
         final TabView tabView = new TabView(getContext());
         tabView.init(this, tab);
         tabView.setFocusable(true);
         if (mTabClickListener == null) {
-            mTabClickListener = new TabClickListener();
+            mTabClickListener = new OnTabClickListener();
         }
         tabView.setOnClickListener(mTabClickListener);
         return tabView;
     }
 	
-	private class TabClickListener implements OnClickListener {
+	private class OnTabClickListener implements OnClickListener {
         public void onClick(View view) {
             TabView tabView = (TabView) view;
             tabView.getTab().select();
-            final int tabCount = getChildCount();
-            for (int i = 0; i < tabCount; i++) {
-                final View child = getChildAt(i);
-                child.setSelected(child == view);
-            }
         }
     }
 
 	private class TabView extends LinearLayout {
 		
-		private Tab mTab = null;
+		private CTab mTab = null;
 		private TextView mTxvTitle = null;
 		private ImageView mImgIcon = null;
 		private View mCustomView = null;
-		private TabBarView mParent = null;
+		private CTabBarView mParent = null;
 
 		public TabView(Context context) {
 			super(context);
 			setOrientation(LinearLayout.VERTICAL);
 		}
 		
-		public void init(TabBarView parent, Tab tab) {
+		public void init(CTabBarView parent, CTab tab) {
 			mParent = parent;
 			mTab = tab;
 			update();
 		}
 		
 		public void update() {
-			final Tab tab = mTab;
+			final CTab tab = mTab;
 			final View custom = tab.getCustom();
 			if (custom != null) {
 				final ViewParent customParent = custom.getParent();
@@ -181,7 +257,7 @@ public class TabBarView extends LinearLayout {
 			}
 		}
 		
-		Tab getTab() {
+		CTab getTab() {
 			return mTab;
 		}
 		

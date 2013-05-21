@@ -1,41 +1,34 @@
 package com.zhangguoyu.demo.actionbar;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
-import android.widget.Button;
-import android.widget.ImageView;
 
-public class MainActivity extends Activity {
-	
-	private CActionBarImpl mActionBarImpl = null;
+import com.zhangguoyu.app.CActionBar;
+import com.zhangguoyu.app.CActionBarImpl;
+import com.zhangguoyu.app.CBlockActivity;
+import com.zhangguoyu.app.CPageBlockActivity;
+import com.zhangguoyu.widget.CBlockPager;
+import com.zhangguoyu.widget.CMenu;
+
+public class MainActivity extends CPageBlockActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		mActionBarImpl = new CActionBarImpl(this);
-		Button back = new Button(this);
-		back.setText("<");
-		ImageView home = new ImageView(this);
-		home.setImageResource(R.drawable.ic_launcher);
-		mActionBarImpl.setBackButton(back);
-		mActionBarImpl.setLogoView(home);
-		mActionBarImpl.setTitle("Demo");
-		mActionBarImpl.addTab(mActionBarImpl.buildTab().setTitle("Demo"))
-			.addTab(mActionBarImpl.buildTab().setTitle("Demo").setIcon(R.drawable.ic_launcher), 0)
-			.addTab(mActionBarImpl.buildTab().setTitle("Demo"));
-		
-	}
-	
-	public CActionBar getSupportActionBar() {
-		return mActionBarImpl;
+		addBlockFromResurce(R.xml.blocks);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		return false;
 	}
+
+    @Override
+    public boolean onCreateOptionsMenu(CMenu menu) {
+        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
+        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
+        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
+        return true;
+    }
 
 }

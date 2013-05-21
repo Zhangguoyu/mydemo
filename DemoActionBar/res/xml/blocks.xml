@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BlockPager xmlns:zgy="http://schemas.android.com/apk/res/com.zhangguoyu.demo.actionbar">
+    <Block 
+        zgy:className="com.zhangguoyu.demo.actionbar.CDemoBlock" 
+        zgy:title="@string/app_name" 
+        zgy:layout="@layout/demo"/>
+    <Block 
+        zgy:className="com.zhangguoyu.demo.actionbar.CDemoSubBlock2"
+        zgy:title="title1" 
+        zgy:layout="@layout/demo"/>
+    <Block 
+        zgy:className="com.zhangguoyu.demo.actionbar.CDemoSubBlock3"
+        zgy:title="title2" 
+        zgy:layout="@layout/demo"/>
+    <Block 
+        zgy:className="com.zhangguoyu.demo.actionbar.CDemoSubBlock4"
+        zgy:title="title3" 
+        zgy:layout="@layout/demo"/>
+</BlockPager>

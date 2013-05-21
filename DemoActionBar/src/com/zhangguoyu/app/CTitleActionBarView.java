@@ -1,4 +1,4 @@
-package com.zhangguoyu.demo.actionbar;
+package com.zhangguoyu.app;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,37 +9,40 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.zhangguoyu.demo.actionbar.CActionBar.Tab;
+import com.zhangguoyu.app.CActionBar.CTab;
+import com.zhangguoyu.demo.actionbar.R;
+import com.zhangguoyu.widget.CMenu;
 
-public class CActionBarView extends LinearLayout {
+public class CTitleActionBarView extends LinearLayout {
 	
 	private View mBackButton = null;
 	private View mHomeView = null;
 	private View mTitleView = null;
-	private View mMenus = null;
 	private ViewGroup mTitleViewContainer = null;
 	private View mCustomView = null;
 	private LinearLayout mTitleBar = null;
-	private TabBarView mTabBar = null;
-
+	
+	private CTabBarView mTabBar = null;
+    private View mOptionsBar = null;
 	private TitleViewWrapper mTitleViewWrapper = null;
 	
-	public CActionBarView(Context context) {
+	public CTitleActionBarView(Context context) {
 		super(context);
 		init();
 	}
 	
-	public CActionBarView(Context context, AttributeSet attrs) {
+	public CTitleActionBarView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public CActionBarView(Context context, AttributeSet attrs, int defStyle) {
+	public CTitleActionBarView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -81,7 +84,7 @@ public class CActionBarView extends LinearLayout {
 	public void setCustomView(View view) {
 		ensureTitleBarExist();
 		if (mCustomView != null) {
-			mTitleBar.removeView(view);
+			mTitleBar.removeView(mCustomView);
 		}
 		
 		mCustomView = view;
@@ -135,15 +138,17 @@ public class CActionBarView extends LinearLayout {
 
 	public void setMenus(View view) {
 		ensureTitleBarExist();
-		if (mMenus != null) {
-			mTitleBar.removeView(mMenus);
+		if (mOptionsBar != null) {
+			mTitleBar.removeView(mOptionsBar);
 		}
-		mMenus = view;
-		
+
+        mOptionsBar = view;
+
+		int pos = Math.max(0, mTitleBar.getChildCount());
 		if(view != null) {
 			LayoutParams p = generateDefaultLayoutParams();
 			p.gravity |= Gravity.RIGHT;
-			mTitleBar.addView(mMenus);
+			mTitleBar.addView(mOptionsBar, pos);
 		}
 	}
 	
@@ -158,22 +163,22 @@ public class CActionBarView extends LinearLayout {
 		addView(mTitleBar, 0, p);
 	}
 	
-	public void addTab(Tab tab) {
+	public void addTab(CTab tab) {
 		ensureTabBarExist();
 		mTabBar.addTab(tab, true);
 	}
 	
-	public void addTab(Tab tab, int position) {
+	public void addTab(CTab tab, int position) {
 		ensureTabBarExist();
 		mTabBar.addTab(tab, position, true);
 	}
 	
-	public void addTab(Tab tab, boolean selected) {
+	public void addTab(CTab tab, boolean selected) {
 		ensureTabBarExist();
 		mTabBar.addTab(tab, selected);
 	}
 	
-	public void addTab(Tab tab, int position, boolean selected) {
+	public void addTab(CTab tab, int position, boolean selected) {
 		ensureTabBarExist();
 		mTabBar.addTab(tab, position, selected);
 	}
@@ -182,7 +187,8 @@ public class CActionBarView extends LinearLayout {
 		if(mTabBar != null) {
 			return;
 		}
-		mTabBar = new TabBarView(getContext());
+        setMenus(new COptionsBarView(getContext()));
+		mTabBar = new CTabBarView(getContext());
 		LayoutParams p = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		addView(mTabBar, p);
 	}
@@ -225,11 +231,41 @@ public class CActionBarView extends LinearLayout {
 		}
 	}
 
+    public void setDisplayShowBackButtonEnable(boolean showBackButton, Animation anim) {
+        if (mBackButton == null) {
+            return;
+        }
+
+        final boolean showing = mBackButton.getVisibility() == View.VISIBLE;
+        if (showBackButton != showing) {
+            mBackButton.clearAnimation();
+            if (anim != null) {
+                mBackButton.setAnimation(anim);
+            }
+            mBackButton.setVisibility(showBackButton?View.VISIBLE:View.GONE);
+        }
+    }
+
 	public void setDisplayShowHomeEnable(boolean showHome) {
 		if (mHomeView != null) {
 			mHomeView.setVisibility(showHome?View.VISIBLE:View.GONE);
 		}
 	}
+
+    public void setDisplayShowHomeEnable(boolean showHome, Animation anim) {
+        if (mHomeView == null) {
+            return;
+        }
+
+        final boolean showing = mHomeView.getVisibility() == View.VISIBLE;
+        if (showHome != showing) {
+            mHomeView.clearAnimation();
+            if (anim != null) {
+                mHomeView.setAnimation(anim);
+            }
+            mHomeView.setVisibility(showHome?View.VISIBLE:View.GONE);
+        }
+    }
 
 	public void setDisplayShowCustomEnable(boolean showCustom) {
 		if (mCustomView != null) {
@@ -237,12 +273,41 @@ public class CActionBarView extends LinearLayout {
 		}
 	}
 
+    public void setDisplayShowCustomEnable(boolean showCustom, Animation anim) {
+        if (mCustomView == null) {
+            return;
+        }
+
+        final boolean showing = mCustomView.getVisibility() == View.VISIBLE;
+        if (showCustom != showing) {
+            mCustomView.clearAnimation();
+            if (anim != null) {
+                mCustomView.setAnimation(anim);
+            }
+            mCustomView.setVisibility(showCustom?View.VISIBLE:View.GONE);
+        }
+    }
+
 	public void setDisplayShowTitleEnable(boolean showTitle) {
 		if (mTitleView != null) {
 			mTitleView.setVisibility(showTitle?View.VISIBLE:View.GONE);
 		}
-		
 	}
+
+    public void setDisplayShowTitleEnable(boolean showTitle, Animation anim) {
+        if (mTitleView == null) {
+            return;
+        }
+
+        final boolean showing = mTitleView.getVisibility() == View.VISIBLE;
+        if (showTitle != showing) {
+            mTitleView.clearAnimation();
+            if (anim != null) {
+                mTitleView.setAnimation(anim);
+            }
+            mTitleView.setVisibility(showTitle?View.VISIBLE:View.GONE);
+        }
+    }
 	
 	public void setTitle(CharSequence title) {
 		getTitleViewWrapper().setTitle(title);
@@ -310,5 +375,21 @@ public class CActionBarView extends LinearLayout {
 			mTabBar.setTabSelected(position);
 		}
 	}
+
+    public void inflateOptionsBarByMenu(CMenu menu) {
+        if (menu == null && menu.getItemCount() == 0) {
+            return;
+        }
+
+        if (mOptionsBar != null && (mOptionsBar instanceof CMenuBarView)) {
+            ((CMenuBarView) mOptionsBar).inflatedByMenu(menu);
+        }
+    }
+
+    public void setOnOptionsBarSelectedListener(CMenuBarView.OnMenuItemSelectedListener listener) {
+        if (mOptionsBar != null && (mOptionsBar instanceof CMenuBarView)) {
+            ((CMenuBarView) mOptionsBar).setOnMenuItemSelectedListener(listener);
+        }
+    }
 
 }
