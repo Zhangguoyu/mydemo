@@ -7,13 +7,10 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
-import com.zhangguoyu.app.CActionBar.CTab;
+import com.zhangguoyu.widget.*;
+import com.zhangguoyu.widget.CActionBar.CTab;
 import com.zhangguoyu.demo.actionbar.R;
-import com.zhangguoyu.widget.CMenu;
-import com.zhangguoyu.widget.CMenuItem;
-import com.zhangguoyu.widget.CSubMenu;
 
 public class CActivity extends FragmentActivity {
 	
@@ -49,27 +46,31 @@ public class CActivity extends FragmentActivity {
 	}
 	
 	private void prepareActionBar() {
-		mActionBarImpl = new CActionBarImpl(this);
+		mActionBarImpl = CActionBarImpl.newDefault(this);
 		Button back = new Button(this);
 		back.setText("<");
-		ImageView home = new ImageView(this);
-		home.setImageResource(R.drawable.ic_launcher);
 		mActionBarImpl.setBackButton(back);
-		mActionBarImpl.setLogoView(home);
+		mActionBarImpl.setLogo(R.drawable.ic_launcher);
 		mActionBarImpl.setTitle("Demo");
+        mActionBarImpl.setOnBackButtonClickListener(new BackButtonClickListener());
 		mActionBarImpl.addTab(mActionBarImpl.buildTab().setTitle("Demo"))
 			.addTab(mActionBarImpl.buildTab().setTitle("Demo").setIcon(R.drawable.ic_launcher), 0)
 			.addTab(mActionBarImpl.buildTab().setTitle("Demo"));
 
-        CMenu optionsMenu = mActionBarImpl.newMenu();
-        dispatchCreateOptionsMene(optionsMenu);
-
-		CMenu menu = mActionBarImpl.newMenu();
-		dispatchCreateNavigationMenu(menu);
+        onDispatchCreateOptionsMenu();
+        onDispatchCreateNavigationMenu();
 	}
 	
 	public void onTabSelected(CTab selectedTab) {
 	}
+
+    protected void onDispatchCreateOptionsMenu() {
+        dispatchCreateOptionsMenu();
+    }
+
+    protected void onDispatchCreateNavigationMenu() {
+        dispatchCreateNavigationMenu();
+    }
 	
 	@Override
 	public void setTitle(CharSequence title) {
@@ -83,47 +84,22 @@ public class CActivity extends FragmentActivity {
 		mActionBarImpl.setTitle(titleId);
 	}
 
-    public void dispatchCreateOptionsMene(CMenu menu) {
+    public void dispatchCreateOptionsMenu() {
+        CMenu menu = mActionBarImpl.newMenu();
         if (onCreateOptionsMenu(menu)) {
             mActionBarImpl.inflatdOptionsBarByMenu(menu);
         }
     }
 	
-	public void dispatchCreateNavigationMenu(CMenu menu) {
+	public void dispatchCreateNavigationMenu() {
+        CMenu menu = mActionBarImpl.newMenu();
 		if(onCreateNavigationMenu(menu)) {
 			mActionBarImpl.inflatedNavigationBarByMenu(menu);
 		}
 	}
 	
 	public boolean onCreateNavigationMenu(CMenu menu) {
-        CSubMenu subMenu = menu.addSubMenu(
-                R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu.add(R.string.demo_menu, R.drawable.ic_launcher);
-
-        CSubMenu subMenu2 = menu.addSubMenu(
-                R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu2.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu2.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu2.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu2.add(R.string.demo_menu, R.drawable.ic_launcher);
-        subMenu2.add(R.string.demo_menu, R.drawable.ic_launcher);
-
-		menu.add(R.string.demo_menu, R.drawable.ic_launcher);
-		menu.add(R.string.demo_menu, R.drawable.ic_launcher);
-		menu.add(R.string.demo_menu2, R.drawable.ic_launcher);
-        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        menu.add(R.string.demo_menu2, R.drawable.ic_launcher);
-        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
-        menu.add(R.string.demo_menu2, R.drawable.ic_launcher);
-        menu.add(R.string.demo_menu, R.drawable.ic_launcher);
-		return true;
+		return false;
 	}
 	
 	public boolean onPrepareNavigationMenu(CMenu item) {
@@ -152,4 +128,11 @@ public class CActivity extends FragmentActivity {
         return mActionBarImpl;
     }
 
+    private final class BackButtonClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            onBackButtonClick();
+        }
+    }
 }

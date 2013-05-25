@@ -1,19 +1,16 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import com.zhangguoyu.app.CActivity;
 import com.zhangguoyu.demo.actionbar.R;
-import com.zhangguoyu.widget.CMenu;
-import com.zhangguoyu.widget.CMenuItem;
-import com.zhangguoyu.widget.CSubMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +26,10 @@ public class CActionBarImpl extends CActionBar {
 	private boolean mShowing;
 	private TabImpl mSelectedTab = null;
 	private List<TabImpl> mTabs = null;
+
+    public static CActionBarImpl newDefault(CActivity activity) {
+        return new CActionBarImpl(activity);
+    }
 	
 	CActionBarImpl(CActivity activity) {
 		mActivity = activity;
@@ -68,29 +69,39 @@ public class CActionBarImpl extends CActionBar {
 
 	@Override
 	public CActionBar setCustomView(View view) {
+        mTitleActionBarView.setCustomView(view);
 		return this;
 	}
 
 	@Override
 	public CActionBar setLogo(int resId) {
 		ImageView home = new ImageView(mContext);
-		home.setImageResource(R.drawable.ic_launcher);
+		home.setImageResource(resId);
 		mTitleActionBarView.setHomeView(home);
 		return this;
 	}
 
 	@Override
 	public CActionBar setLogo(Drawable drawable) {
+        ImageView home = new ImageView(mContext);
+        home.setImageDrawable(drawable);
+        mTitleActionBarView.setHomeView(home);
 		return this;
 	}
 
 	@Override
 	public CActionBar setBackDrawable(int resId) {
+        ImageView back = new ImageView(mContext);
+        back.setImageResource(resId);
+        mTitleActionBarView.setBackButton(back);
 		return this;
 	}
 
 	@Override
 	public CActionBar setBackDrawable(Drawable drawable) {
+        ImageView back = new ImageView(mContext);
+        back.setImageDrawable(drawable);
+        mTitleActionBarView.setBackButton(back);
 		return this;
 	}
 
@@ -128,6 +139,7 @@ public class CActionBarImpl extends CActionBar {
 		}
 		mShowing = true;
 		mTitleActionBarView.setVisibility(View.VISIBLE);
+        mNavigationActionBarView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -137,6 +149,7 @@ public class CActionBarImpl extends CActionBar {
 		}
 		mShowing = false;
 		mTitleActionBarView.setVisibility(View.GONE);
+        mNavigationActionBarView.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -448,440 +461,15 @@ public class CActionBarImpl extends CActionBar {
         return this;
     }
 
+    @Override
+    public CActionBar setTitleStyle(int titleViewStyle) {
+        return null;
+    }
+
     private void cleanupTabs() {
         mTabs.clear();
         mTitleActionBarView.removeAllTabs();
     }
-    
-	static class CMenuImpl implements CMenu {
-		
-		private Context mContext;
-		private List<CMenuItemImpl> mItems = null;
-		private Resources mRes = null;
-		
-		CMenuImpl(Context context) {
-			mContext = context;
-			mRes = context.getResources();
-		}
-		
-		Context getContext() {
-			return mContext;
-		}
-
-		@Override
-		public CMenuItem add(CharSequence title) {
-			return addInternal(0, 0, title, null, false);
-		}
-
-		@Override
-		public CMenuItem add(int titleResId) {
-			return addInternal(0, 0, mRes.getString(titleResId), null, false);
-		}
-
-        @Override
-        public CMenuItem addIconItem(int iconResId) {
-            return addInternal(0, 0, null, mRes.getDrawable(iconResId), false);
-        }
-
-        @Override
-        public CMenuItem addIconItem(Drawable icon) {
-            return addInternal(0, 0, null, icon, false);
-        }
-
-        @Override
-		public CMenuItem add(CharSequence title, Drawable icon) {
-			return addInternal(0, 0, title, icon, false);
-		}
-
-		@Override
-		public CMenuItem add(int titleResId, int iconResId) {
-			return addInternal(0, 0, mRes.getString(titleResId), 
-					mRes.getDrawable(iconResId), false);
-		}
-
-		@Override
-		public CMenuItem add(int groupId, int itemId, CharSequence title) {
-			return addInternal(groupId, itemId, title, null, false);
-		}
-
-		@Override
-		public CMenuItem add(int groupId, int itemId, int titleResId) {
-			return addInternal(groupId, itemId, mRes.getString(titleResId), null, false);
-		}
-
-		@Override
-		public CMenuItem add(int groupId, int itemId, CharSequence title,
-				Drawable icon) {
-			return addInternal(groupId, itemId, title, icon, false);
-		}
-
-		@Override
-		public CMenuItem add(int groupId, int itemId, int titleResId, int iconResId) {
-			return addInternal(groupId, itemId, mRes.getString(titleResId), 
-					mRes.getDrawable(iconResId), false);
-		}
-		
-		private CMenuItemImpl addInternal(int groupId, int itemId, CharSequence title, 
-				Drawable icon, boolean isMore) {
-			CMenuItemImpl impl = new CMenuItemImpl(mContext, 
-					groupId, itemId, title, icon, isMore);
-			
-			if (mItems == null) {
-				mItems = new ArrayList<CMenuItemImpl>();
-			}
-			mItems.add(impl);
-			return impl;
-		}
-
-		@Override
-		public CMenuItem findItem(int id) {
-			if (mItems != null) {
-				final int N = mItems.size();
-				for (int i=0; i<N; i++) {
-					final CMenuItem item = mItems.get(i);
-					if (item.getItemId() == id) {
-						return item;
-					} else if (item.hasSubMenu()) {
-						CSubMenu subMenu = item.getSubMenu();
-						CMenuItem subItem = subMenu.findItem(id);
-						if(subItem != null) {
-							return subItem;
-						}
-					}
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public CMenuItem getItemAt(int index) {
-			if (mItems != null && index > -1 && index < mItems.size()) {
-				return mItems.get(index);
-			}
-			return null;
-		}
-
-		@Override
-		public int getItemCount() {
-			if (mItems != null) {
-				return mItems.size();
-			}
-			return 0;
-		}
-
-		@Override
-		public CSubMenu addSubMenu(CharSequence title) {
-			return addSubMenuInternal(0, 0, title, null);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int titleResId) {
-			return addSubMenuInternal(0, 0, mRes.getString(titleResId), null);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(CharSequence title, Drawable icon) {
-			return addSubMenuInternal(0, 0, title, icon);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int titleResId, int iconResId) {
-			return addSubMenuInternal(0, 0, mRes.getString(titleResId), 
-					mRes.getDrawable(iconResId));
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int groupId, int itemId, CharSequence title) {
-			return addSubMenuInternal(groupId, itemId, title, null);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int groupId, int itemId, int titleResId) {
-			return addSubMenuInternal(groupId, itemId, mRes.getString(titleResId), null);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int groupId, int itemId, CharSequence title,
-				Drawable icon) {
-			return addSubMenuInternal(groupId, itemId, title, icon);
-		}
-
-		@Override
-		public CSubMenu addSubMenu(int groupId, int itemId, int titleResId,
-				int iconResId) {
-			return addSubMenuInternal(groupId, itemId, mRes.getString(titleResId), 
-					mRes.getDrawable(iconResId));
-		}
-		
-		private CSubMenuImpl addSubMenuInternal(int groupId, int itemId, CharSequence title, 
-				Drawable icon) {
-			CMenuItemImpl item = addInternal(groupId, itemId, title, icon, false);
-			CSubMenuImpl impl = new CSubMenuImpl(mContext, item);
-			item.setSubMenu(impl);
-			return impl;
-		}
-
-		@Override
-		public CMenu removeItem(int itemId) {
-			CMenuItem removeItem = null;
-			if (mItems != null) {
-				final int N = mItems.size();
-				for (int i=0; i<N; i++) {
-					final CMenuItem item = mItems.get(i);
-					if (item.getItemId() == itemId) {
-						removeItem = item;
-						break;
-					} 
-				}
-			}
-			
-			if (removeItem != null) {
-				mItems.remove(removeItem);
-			}
-			return this;
-		}
-
-		@Override
-		public CMenu removeGroup(int groupId) {
-			List<CMenuItem> removeItems = new ArrayList<CMenuItem>();
-			if (mItems != null) {
-				final int N = mItems.size();
-				for (int i=0; i<N; i++) {
-					final CMenuItem item = mItems.get(i);
-					if (item.getGroupId() == groupId) {
-						removeItems.add(item);
-					} 
-				}
-			}
-			
-			if (!removeItems.isEmpty()) {
-				mItems.remove(removeItems);
-			}
-			
-			return this;
-		}
-
-		@Override
-		public CMenu clear() {
-			mItems.clear();
-			mItems = null;
-			return this;
-		}
-
-		@Override
-		public void show() {
-			
-		}
-
-		@Override
-		public void hide() {
-
-		}
-	}
-
-    static class CSubMenuImpl extends CMenuImpl implements CSubMenu {
-		
-		private CMenuItemImpl mItemImpl = null;
-
-		CSubMenuImpl(Context context, CMenuItemImpl item) {
-			super(context);
-			mItemImpl = item;
-		}
-
-		@Override
-		public CMenuItem getMenuItem() {
-			return mItemImpl;
-		}
-
-	}
-
-    static class CMenuItemImpl implements CMenuItem {
-		
-		private Context mContext = null;
-		private int mGroupId = 0;
-		private int mItemId = 0;
-		private int mIconResId = 0;
-		private Drawable mIcon = null;
-		private int mTitleResId = 0;
-		private CharSequence mTitle = null;
-		private int mCustomLayoutResId = 0;
-		private View mCustomView = null;
-		private Intent mIntent = null;
-		private int mVisibility = View.VISIBLE;
-		private boolean mIsEnabled = true;
-		private boolean mIsSelected = false;
-		private boolean mIsMore = false;
-		private CSubMenu mSubMenu = null;
-		private LayoutInflater mInflater = null;
-		
-		public CMenuItemImpl(Context context, int groupId, int itemId, 
-				CharSequence title, Drawable icon, boolean isMore) {
-			mContext = context;
-			mIsMore = isMore;
-			mGroupId = groupId;
-			mItemId = itemId;
-			mTitle = title;
-			mIcon = icon;
-			
-			mInflater = (LayoutInflater) context.getSystemService(
-					Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
-		public void setSubMenu(CSubMenu subMenu) {
-			mSubMenu = subMenu;
-		}
-
-		@Override
-		public CMenuItem setIcon(Drawable icon) {
-			mIcon = icon;
-			mIconResId = 0;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setIcon(int iconResId) {
-			mIconResId = iconResId;
-			mIcon = null;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setTitle(CharSequence title) {
-			mTitle = title;
-			mTitleResId = 0;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setTitle(int titleResId) {
-			mTitleResId = titleResId;
-			mTitle = null;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setCustomView(int customLayoutResId) {
-			mCustomLayoutResId = customLayoutResId;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setCustomView(View customView) {
-			mCustomView = customView;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setVisibility(int visibility) {
-			mVisibility = visibility;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setEnabled(boolean enabled) {
-			mIsEnabled = enabled;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setSelected(boolean selected) {
-			mIsSelected = selected;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setIntent(Intent intent) {
-			mIntent = intent;
-			return this;
-		}
-
-		@Override
-		public boolean hasSubMenu() {
-			return mSubMenu != null && mSubMenu.getItemCount()>0;
-		}
-
-		@Override
-		public CSubMenu getSubMenu() {
-			return mSubMenu;
-		}
-
-		@Override
-		public Drawable getIcon() {
-			if (mIcon == null) {
-				if (mIconResId > 0) {
-					mIcon = mContext.getResources().getDrawable(mIconResId);
-				}
-			}
-			return mIcon;
-		}
-
-		@Override
-		public CharSequence getTitle() {
-			if (mTitle == null) {
-				if (mTitleResId > 0) {
-					mTitle = mContext.getResources().getText(mTitleResId);
-				}
-			}
-			return mTitle;
-		}
-
-		@Override
-		public View getCustomView() {
-			if (mCustomView == null) {
-				if (mCustomLayoutResId > 0) {
-					mCustomView = mInflater.inflate(mCustomLayoutResId, null);
-				}
-			}
-			return mCustomView;
-		}
-
-		@Override
-		public Intent getIntent() {
-			return mIntent;
-		}
-
-		@Override
-		public int getVisibility() {
-			return mVisibility;
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return mIsEnabled;
-		}
-
-		@Override
-		public boolean isSelected() {
-			return mIsSelected;
-		}
-		
-		boolean isMore() {
-			return mIsMore;
-		}
-
-		@Override
-		public CMenuItem setItemId(int id) {
-			mItemId = id;
-			return this;
-		}
-
-		@Override
-		public CMenuItem setGroupId(int groupId) {
-			mGroupId = groupId;
-			return this;
-		}
-
-		@Override
-		public int getGroupId() {
-			return mGroupId;
-		}
-
-		@Override
-		public int getItemId() {
-			return mItemId;
-		}
-
-	}
 
 	@Override
 	public CActionBar setNavigationBarBackground(Drawable drawable) {
@@ -894,9 +482,195 @@ public class CActionBarImpl extends CActionBar {
 		mNavigationActionBarView.setBackgroundResource(resId);
 		return this;
 	}
-	
-	public CMenu newMenu() {
-		return new CMenuImpl(mContext);
+
+    @Override
+    public CActionBar setNavigationMenuBackground(Drawable drawable) {
+        mNavigationActionBarView.setItemBackground(drawable);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuBackground(int resId) {
+        mNavigationActionBarView.setItemBackground(
+                mContext.getResources().getDrawable(resId));
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuMargin(int margin) {
+        mNavigationActionBarView.setItemMargin(margin);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuMarginLeftAndRight(int margin) {
+        final int top = mNavigationActionBarView.getItemTopMargin();
+        final int bottom = mNavigationActionBarView.getItemBottomMargin();
+        mNavigationActionBarView.setItemMargin(margin, top, margin, bottom);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigaitonMenuMarginTopAndBottom(int margin) {
+        final int left = mNavigationActionBarView.getItemLeftMargin();
+        final int right = mNavigationActionBarView.getItemRightMargin();
+        mNavigationActionBarView.setItemMargin(left, margin, right, margin);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuMargin(int left, int top, int right, int bottom) {
+        mNavigationActionBarView.setItemMargin(left, top, right, bottom);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuTextSize(float size) {
+        mNavigationActionBarView.setItemTextSize(size);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuTextColor(ColorStateList color) {
+        mNavigationActionBarView.setItemTextColor(color);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuTextColor(int color) {
+        mNavigationActionBarView.setItemTextColor(color);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuTextColorResource(int colorResourceId) {
+        mNavigationActionBarView.setItemTextColorResource(colorResourceId);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationMenuTypeface(Typeface tf) {
+        mNavigationActionBarView.setItemTypeface(tf);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationBarStyle(int style) {
+        mNavigationActionBarView.setButtonBarStyle(style);
+        return this;
+    }
+
+    @Override
+    public CActionBar setNavigationBarHeight(int height) {
+        mNavigationActionBarView.setButtonBarHeight(height);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabBarBackground(Drawable drawable) {
+        mTitleActionBarView.getTabBar().setBackgroundDrawable(drawable);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabBarBackground(int resId) {
+        mTitleActionBarView.getTabBar().setBackgroundResource(resId);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuBackground(Drawable drawable) {
+        mTitleActionBarView.getTabBar().setItemBackground(drawable);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuBackground(int resId) {
+        mTitleActionBarView.getTabBar().setItemBackground(
+                mContext.getResources().getDrawable(resId));
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuMargin(int margin) {
+        mTitleActionBarView.getTabBar().setItemMargin(margin);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuMarginLeftAndRight(int margin) {
+        final CTabBarView tabBar = mTitleActionBarView.getTabBar();
+        final int top = tabBar.getItemTopMargin();
+        final int bottom = tabBar.getItemBottomMargin();
+        tabBar.setItemMargin(margin, top, margin, bottom);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuMarginTopAndBottom(int margin) {
+        final CTabBarView tabBar = mTitleActionBarView.getTabBar();
+        final int left = tabBar.getItemLeftMargin();
+        final int right = tabBar.getItemRightMargin();
+        tabBar.setItemMargin(left, margin, right, margin);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuMenuMargin(int left, int top, int right, int bottom) {
+        mTitleActionBarView.getTabBar().setItemMargin(left, top, right, bottom);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuTextSize(float size) {
+        mTitleActionBarView.getTabBar().setItemTextSize(size);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuTextColor(ColorStateList color) {
+        mTitleActionBarView.getTabBar().setItemTextColor(color);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuTextColor(int color) {
+        mTitleActionBarView.getTabBar().setItemTextColor(color);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuTextColorResource(int colorResId) {
+        mTitleActionBarView.getTabBar().setItemTextColorResource(colorResId);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuTypeface(Typeface tf) {
+        mTitleActionBarView.getTabBar().setItemTypeface(tf);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabMenuBarStyle(int style) {
+        mTitleActionBarView.getTabBar().setButtonBarStyle(style);
+        return this;
+    }
+
+    @Override
+    public CActionBar setTabBarHeight(int height) {
+        mTitleActionBarView.getTabBar().setButtonBarHeight(height);
+        return this;
+    }
+
+    @Override
+    public CActionBar setOnBackButtonClickListener(View.OnClickListener listener) {
+        mTitleActionBarView.setOnBackButtonClickListener(listener);
+        return this;
+    }
+
+    public CMenu newMenu() {
+		return new CMenuBarView.CMenuImpl(mContext);
 	}
 	
 	public void inflatedNavigationBarByMenu(CMenu menu) {

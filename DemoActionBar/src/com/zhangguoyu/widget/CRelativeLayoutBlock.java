@@ -35,10 +35,10 @@ public class CRelativeLayoutBlock extends RelativeLayout implements
     private void init(Context context, AttributeSet attrs) {
 
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CBlockingView);
-            final String blockClassName = a.getString(R.styleable.CBlockingView_blockClass);
-            final int blockId = a.getResourceId(R.styleable.CBlockingView_blockId, CBlock.NO_ID);
-            final Object blockTag = a.getString(R.styleable.CBlockingView_blockTag);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CBlock);
+            final String blockClassName = a.getString(R.styleable.CBlock_blockName);
+            final int blockId = a.getResourceId(R.styleable.CBlock_blockId, CBlock.NO_ID);
+            final Object blockTag = a.getString(R.styleable.CBlock_blockTag);
             if (!TextUtils.isEmpty(blockClassName)) {
                 try {
                     Class<?> blockClass = context.getClassLoader().loadClass(blockClassName);
@@ -64,8 +64,8 @@ public class CRelativeLayoutBlock extends RelativeLayout implements
     }
 
     @Override
-    public void setBlock(CBlock block) {
-        mBlock = block;
+    public void bindBlock(String name, int id, int layoutResId, Object tag) {
+
     }
 
 }

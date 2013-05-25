@@ -25,13 +25,15 @@
     </style>
 
     <style name="CNavigationBarStyle">
-        <item name="menubarBackground">@drawable/ic_launcher</item>
         <item name="menubarHeight">54dp</item>
     </style>
 
     <style name="CTabBarStyle">
-        <item name="menubarBackground">@drawable/ic_launcher</item>
         <item name="menubarHeight">20dp</item>
+    </style>
+    
+    <style name="TestButtonBarViewStyle">
+        <item name="itemTextSize">15sp</item>
     </style>
 
 </resources>

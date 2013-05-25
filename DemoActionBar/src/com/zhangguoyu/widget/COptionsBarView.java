@@ -1,7 +1,8 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import com.zhangguoyu.widget.CMenuBarView;
 import com.zhangguoyu.widget.CMenuItem;
 
 /**

@@ -4,6 +4,7 @@ import com.zhangguoyu.app.CBlock;
 
 import android.os.Bundle;
 import android.util.Log;
+import com.zhangguoyu.widget.CMenu;
 
 public class CDemoBlock extends CBlock {
 	
@@ -15,4 +16,12 @@ public class CDemoBlock extends CBlock {
 
 	}
 
+    @Override
+    public boolean onCreateNavigationMenu(CMenu menu) {
+        menu.add(R.string.demo_menu);
+        menu.add(R.string.demo_menu);
+        menu.add(R.string.demo_menu);
+        menu.add(R.string.demo_menu);
+        return true;
+    }
 }

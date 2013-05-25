@@ -1,4 +1,4 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,8 +8,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import com.zhangguoyu.demo.actionbar.R;
-import com.zhangguoyu.widget.CMenuItem;
-import com.zhangguoyu.widget.CSubMenu;
 
 /**
  * Created by zhangguoyu on 13-5-17.
@@ -74,7 +72,7 @@ public class CNavigationActionBarView extends CMenuBarView {
 
         final CMenuItem curr = getCurrentSelectedItem();
         if (mPreSelectedItem == null || mPreSelectedItem != curr) {
-            mMenuPanelLayout.updateByMenuItem((CActionBarImpl.CMenuItemImpl) item);
+            mMenuPanelLayout.updateByMenuItem((CMenuItemImpl) item);
             mPreSelectedItem = curr;
         }
     }
@@ -87,7 +85,7 @@ public class CNavigationActionBarView extends CMenuBarView {
             super(context);
         }
 
-        void updateByMenuItem(CActionBarImpl.CMenuItemImpl item) {
+        void updateByMenuItem(CMenuItemImpl item) {
             removeAllViews();
             if (!item.hasSubMenu()) {
                 return;
@@ -95,7 +93,7 @@ public class CNavigationActionBarView extends CMenuBarView {
             CSubMenu menu = item.getSubMenu();
             final int N = menu.getItemCount();
             for (int i=0; i<N; i++) {
-                CActionBarImpl.CMenuItemImpl mi = (CActionBarImpl.CMenuItemImpl) menu.getItemAt(i);
+                CMenuItemImpl mi = (CMenuItemImpl) menu.getItemAt(i);
                 addView(createMenuItemView(mi));
             }
         }

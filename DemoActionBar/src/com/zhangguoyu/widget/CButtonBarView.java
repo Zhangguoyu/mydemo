@@ -1,4 +1,4 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -39,6 +39,10 @@ public abstract  class CButtonBarView extends LinearLayout {
     private int mItemRightPadding = 0;
     private int mItemBottomPadding = 0;
     private int mItemPadding = 0;
+    private int mItemTextShadowColor = 0;
+    private float mItemTextShadowDx = 0f;
+    private float mItemTextShadowDy = 0f;
+    private float mItemTextShadowRadius = 0f;
 
     public CButtonBarView(Context context) {
         super(context);
@@ -57,20 +61,14 @@ public abstract  class CButtonBarView extends LinearLayout {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CButtonBarView, defStyle, 0);
-        final int N = a.getIndexCount();
-        for (int index=0; index<N; index++) {
-            switch(index) {
-                case R.styleable.CButtonBarView_itemBackground:
-                    mItemBackground = null;
-                    break;
-            }
-        }
-        a.recycle();
+        onChangeButtonBarStyle(attrs, defStyle, 0);
     }
 
-    public CButtonBarView setBarHeight(int height) {
+    public CButtonBarView setButtonBarHeight(int height) {
         ViewGroup.LayoutParams p = getLayoutParams();
+        if (p == null) {
+        	return this;
+        }
         final int h = p.height;
         if (h == height) {
             return this;
@@ -85,10 +83,12 @@ public abstract  class CButtonBarView extends LinearLayout {
     }
 
     public CButtonBarView setItemTextSize(float size) {
-        if (mItemTextSize == size) {
+    	final float density = getResources().getDisplayMetrics().scaledDensity;
+    	final float scaledSize = size*density;
+        if (mItemTextSize == scaledSize) {
             return this;
         }
-        mItemTextSize = size;
+        mItemTextSize = scaledSize;
         onChangeItemTextSize(size);
         return this;
     }
@@ -117,6 +117,10 @@ public abstract  class CButtonBarView extends LinearLayout {
         return this;
     }
 
+    public CButtonBarView setItemTextColorResource(int colorResId) {
+        return setItemTextColor(getResources().getColorStateList(colorResId));
+    }
+
     protected abstract void onChangeItemTextColor(ColorStateList color);
 
     public Typeface getItemTypeface() {
@@ -128,7 +132,7 @@ public abstract  class CButtonBarView extends LinearLayout {
     }
 
     public CButtonBarView setItemTypeface(Typeface tf, int style) {
-        if (mItemTextTypeface.equals(tf)) {
+        if (mItemTextTypeface != null && mItemTextTypeface.equals(tf)) {
             return this;
         }
         mItemTextTypeface = tf;
@@ -199,10 +203,21 @@ public abstract  class CButtonBarView extends LinearLayout {
             return this;
         }
         mItemMargin = margin;
-        mItemLeftMargin = margin;
-        mItemTopMargin = margin;
-        mItemRightMargin = margin;
-        mItemBottomMargin = margin;
+        setItemMargin(margin, margin, margin, margin);
+        return this;
+    }
+
+    public CButtonBarView setItemMargin(int left, int top, int right, int bottom) {
+        if (mItemLeftMargin == left
+                && mItemTopMargin == top
+                && mItemRightMargin == right
+                && mItemBottomMargin == bottom) {
+            return this;
+        }
+        mItemLeftMargin = left;
+        mItemTopMargin = top;
+        mItemRightMargin = right;
+        mItemBottomMargin = bottom;
         onChangeItemMargin(mItemLeftMargin, mItemTopMargin, mItemRightMargin, mItemBottomMargin);
         return this;
     }
@@ -236,17 +251,17 @@ public abstract  class CButtonBarView extends LinearLayout {
     }
 
     public CButtonBarView setButtonBarStyle(int style) {
-        onChangeButtonBarStyle(style);
+        if (mButtonBarStyle == style) {
+            return this;
+        }
+        mButtonBarStyle = style;
+
+        onChangeButtonBarStyle(null, 0, style);
         return this;
     }
 
-    protected void onChangeButtonBarStyle(int style) {
-        if (mButtonBarStyle == style) {
-            return;
-        }
-        final Context c = getContext();
-        final float scaledDensity = c.getResources().getDisplayMetrics().scaledDensity;
-        TypedArray a = c.obtainStyledAttributes(null, R.styleable.CButtonBarView, style, 0);
+    protected void onChangeButtonBarStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+
         int tf = -1;
         int textStyle = -1;
         String fontFamily = null;
@@ -254,18 +269,23 @@ public abstract  class CButtonBarView extends LinearLayout {
         float dx = 0f;
         float dy = 0f;
         float r = 0f;
+
+        final Context c = getContext();
+        final float scaledDensity = c.getResources().getDisplayMetrics().scaledDensity;
+        TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.CButtonBarView, defStyleAttr, defStyleRes);
         final int N = a.getIndexCount();
-        for (int index=0; index<N; index++) {
+        for (int i=0; i<N; i++) {
+        	final int index = a.getIndex(i);
             switch(index) {
                 case R.styleable.CButtonBarView_itemBackground:
-                    onChangeItemBackground(a.getDrawable(index));
+                    setItemBackground(a.getDrawable(index));
                     break;
                 case R.styleable.CButtonBarView_itemTextSize:
                     float textSize = a.getDimension(index, 0f);
-                    onChangeItemTextSize(textSize/scaledDensity);
+                    setItemTextSize(textSize/scaledDensity);
                     break;
                 case R.styleable.CButtonBarView_itemTextColor:
-                    onChangeItemTextColor(a.getColorStateList(index));
+                    setItemTextColor(a.getColorStateList(index));
                     break;
                 case R.styleable.CButtonBarView_itemTextFamilyName:
                     fontFamily = a.getString(index);
@@ -292,33 +312,45 @@ public abstract  class CButtonBarView extends LinearLayout {
                     tf = a.getInt(index, tf);
                     break;
                 case R.styleable.CButtonBarView_menubarHeight:
-                    setBarHeight(a.getLayoutDimension(index, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    setButtonBarHeight(a.getLayoutDimension(index, ViewGroup.LayoutParams.WRAP_CONTENT));
                     break;
                 case R.styleable.CButtonBarView_itemMargin:
+                    setItemMargin(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemLeftMargin:
+                    setItemLeftMargin(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemTopMargin:
+                    setItemTopMargin(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemRightMargin:
+                    setItemRightMargin(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemBottomMargin:
+                    setItemBottomMargin(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemPadding:
+                    setItemPadding(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemLeftPadding:
+                    setItemLeftPadding(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemTopPadding:
+                    setItemTopPadding(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemRightPadding:
+                    setItemRightPadding(a.getDimensionPixelSize(index, 0));
                     break;
                 case R.styleable.CButtonBarView_itemBottomPadding:
+                    setItemBottomPadding(a.getDimensionPixelSize(index, 0));
                     break;
             }
         }
         a.recycle();
 
         setTypefaceFromAttrs(fontFamily, tf, textStyle);
+
+        setItemTextShadow(shadowColor, dx, dy, r);
     }
 
     private void setTypefaceFromAttrs(String familyName, int typefaceIndex, int styleIndex) {
@@ -326,7 +358,7 @@ public abstract  class CButtonBarView extends LinearLayout {
         if (familyName != null) {
             tf = Typeface.create(familyName, styleIndex);
             if (tf != null) {
-                onChangeItemTypeface(tf, -1);
+                setItemTypeface(tf, -1);
                 return;
             }
         }
@@ -342,7 +374,7 @@ public abstract  class CButtonBarView extends LinearLayout {
                 break;
         }
 
-        onChangeItemTypeface(tf, styleIndex);
+        setItemTypeface(tf, styleIndex);
     }
 
     public int getItemLeftPadding() {
@@ -401,24 +433,49 @@ public abstract  class CButtonBarView extends LinearLayout {
         return this;
     }
 
+    public CButtonBarView setItemPadding(int left, int top, int right, int bottom) {
+        if (mItemLeftPadding == left
+                && mItemTopPadding == top
+                && mItemRightPadding == right
+                && mItemBottomPadding == bottom) {
+            return this;
+        }
+        mItemLeftPadding = left;
+        mItemTopPadding = top;
+        mItemRightPadding = right;
+        mItemBottomPadding = bottom;
+        onChangeItemPadding(mItemLeftPadding, mItemTopPadding,
+                mItemRightPadding, mItemBottomPadding);
+        return this;
+    }
+
     public int getItemPadding() {
         return mItemPadding;
     }
 
     public CButtonBarView setItemPadding(int padding) {
+        if (mItemPadding == padding) {
+            return this;
+        }
         mItemPadding = padding;
-        mItemLeftPadding = padding;
-        mItemTopPadding = padding;
-        mItemRightPadding = padding;
-        mItemBottomPadding = padding;
-        onChangeItemPadding(mItemLeftPadding, mItemTopPadding,
-                mItemRightPadding, mItemBottomPadding);
+        setItemPadding(padding, padding, padding, padding);
         return this;
     }
 
     public abstract void onChangeItemPadding(int left, int top, int right, int bottom);
 
     public CButtonBarView setItemTextShadow(int color, float dx, float dy, float radius) {
+        if (color == mItemTextShadowColor
+                && dx == mItemTextShadowDx
+                && dy == mItemTextShadowDy
+                && radius == mItemTextShadowRadius) {
+
+            return this;
+        }
+        mItemTextShadowColor = color;
+        mItemTextShadowDx = dx;
+        mItemTextShadowDy = dy;
+        mItemTextShadowRadius = radius;
         onChangeItemTextShadow(color, dx, dy, radius);
         return this;
     }

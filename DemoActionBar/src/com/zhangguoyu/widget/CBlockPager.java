@@ -11,7 +11,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import com.zhangguoyu.app.CBlock;
 import com.zhangguoyu.app.CBlockFragment;
 import com.zhangguoyu.demo.actionbar.R;
-import com.zhangguoyu.demo.actionbar.R.styleable;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -22,7 +21,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Xml;
 
 public class CBlockPager extends ViewPager {
@@ -35,8 +33,8 @@ public class CBlockPager extends ViewPager {
 	private int mPageLimit = DEFAULT_PAGE_LIMIT;
 	private DefaultFragmentPagerAdapter mDefaultAdapter = null;
 	
-	private static final String XML_BLOCK_PAGE = "BlockPager";
-	private static final String XML_BLOCK_ITEM = "Block";
+	private static final String XML_BLOCK_PAGE = "blockpager";
+	private static final String XML_BLOCK_ITEM = "page";
 	
 	public CBlockPager(Context context) {
 		super(context);
@@ -49,18 +47,44 @@ public class CBlockPager extends ViewPager {
 	}
 
 	public void addBlockFromResource(int resId) {
-		ensureFragmentManagerExsit();
-		setDefaultAdapter();
-		List<CBlockInfo> blocks = new ArrayList<CBlockInfo>();
-		inflateBlockFromXml(getContext(), resId, blocks);
-		mDefaultAdapter.addBlocks(blocks);
+		addBlockFromResourceAndSelected(resId, -1);
 	}
+
+    public void addBlockFromResourceAndSelected(int resId, int selectedItem) {
+        ensureFragmentManagerExsit();
+        setDefaultAdapter();
+        List<CBlockInfo> blocks = new ArrayList<CBlockInfo>();
+        inflateBlockFromXml(getContext(), resId, blocks);
+        mDefaultAdapter.setBlocks(blocks);
+
+        if (selectedItem >= 0) {
+            setCurrentItem(selectedItem);
+        }
+    }
 
 	public void addBlock(CBlock block, Bundle arg) {
 		ensureFragmentManagerExsit();
 		setDefaultAdapter();
 		mDefaultAdapter.addBlock(block, arg);
 	}
+
+    public void clearBlocks() {
+        if (mDefaultAdapter != null) {
+            mDefaultAdapter.clear();
+        }
+    }
+
+    public void removeBlockAt(int position) {
+        if (mDefaultAdapter != null) {
+            mDefaultAdapter.removeAt(position);
+        }
+    }
+
+    public void removeBlock(CBlock block) {
+        if (mDefaultAdapter != null) {
+            mDefaultAdapter.removeBlock(block);
+        }
+    }
 	
 	private void ensureFragmentManagerExsit() {
 		if (mFragmentManager == null) {
@@ -69,6 +93,9 @@ public class CBlockPager extends ViewPager {
 	}
 	
 	private void setDefaultAdapter() {
+        if (mDefaultAdapter != null) {
+            return;
+        }
 		if(mDefaultAdapter == null) {
 			mDefaultAdapter = new DefaultFragmentPagerAdapter(mFragmentManager);
 		}
@@ -120,12 +147,12 @@ public class CBlockPager extends ViewPager {
 						tagName = parser.getName();
 						if(tagName.equals(XML_BLOCK_ITEM)) {
 							TypedArray a = c.obtainStyledAttributes(
-									attrs, R.styleable.CBlockPagerXml);
-							final String className = a.getString(R.styleable.CBlockPagerXml_className);
-							final String title = a.getString(R.styleable.CBlockPagerXml_title);
-							final int layoutResId = a.getResourceId(R.styleable.CBlockPagerXml_layout, 0);
-                            final int blockId = a.getResourceId(R.styleable.CBlockPagerXml_id, CBlock.NO_ID);
-                            final Object blockTag = a.getString(styleable.CBlockPagerXml_tag);
+									attrs, R.styleable.CBlock);
+							final String className = a.getString(R.styleable.CBlock_blockName);
+							final String title = a.getString(R.styleable.CBlock_blockTitle);
+							final int layoutResId = a.getResourceId(R.styleable.CBlock_blockLayout, 0);
+                            final int blockId = a.getResourceId(R.styleable.CBlock_blockId, CBlock.NO_ID);
+                            final Object blockTag = a.getString(R.styleable.CBlock_blockTag);
 							
 							Class<?> clazz = sClassMap.get(className);
 				            if (clazz == null) {
@@ -159,6 +186,27 @@ public class CBlockPager extends ViewPager {
 			e.printStackTrace();
 		}
 	}
+
+    public CBlock getCurrentBlock() {
+        return getBlockAt(getCurrentItem());
+    }
+
+    public CBlock getBlockAt(int position) {
+        if (mDefaultAdapter != null && (mDefaultAdapter instanceof FragmentStatePagerAdapter)) {
+            Fragment fragment = mDefaultAdapter.getItem(position);
+            if (fragment instanceof CBlockFragment) {
+                return ((CBlockFragment) fragment).getBlock();
+            }
+        }
+        return null;
+    }
+
+    public int getBlockCount() {
+        if (mDefaultAdapter != null && (mDefaultAdapter instanceof FragmentStatePagerAdapter)) {
+            return mDefaultAdapter.getCount();
+        }
+        return 0;
+    }
 	
 	private class DefaultFragmentPagerAdapter extends FragmentStatePagerAdapter {
 		
@@ -175,7 +223,7 @@ public class CBlockPager extends ViewPager {
 			notifyDataSetChanged();
 		}
 		
-		public void addBlocks(List<CBlockInfo> blocks) {
+		public void setBlocks(List<CBlockInfo> blocks) {
 			mBlocks = blocks;
 			notifyDataSetChanged();
 		}
@@ -185,6 +233,7 @@ public class CBlockPager extends ViewPager {
 			CBlockInfo info = mBlocks.get(position);
 			CBlockFragment f = (CBlockFragment) CBlockFragment.instantiate(
 					getContext(), CBlockFragment.class.getName(), info.arg);
+            info.block.setArguments(info.arg);
 			f.wrap(info.block);
 			return f;
 		}
@@ -196,6 +245,39 @@ public class CBlockPager extends ViewPager {
 			}
 			return 0;
 		}
+
+        public void clear() {
+            if (mBlocks != null) {
+                mBlocks.clear();
+                notifyDataSetChanged();
+            }
+
+        }
+
+        public void removeAt(int position) {
+            if (mBlocks != null) {
+                mBlocks.remove(position);
+                notifyDataSetChanged();
+            }
+        }
+
+        public void removeBlock(CBlock block) {
+            if (mBlocks != null) {
+                CBlockInfo removedInfo = null;
+                final int N = mBlocks.size();
+                for (int i=0; i<N; i++) {
+                    final CBlockInfo info = mBlocks.get(i);
+                    if (info.block.equals(block)) {
+                        removedInfo = info;
+                        break;
+                    }
+                }
+                if (removedInfo != null) {
+                    mBlocks.remove(removedInfo);
+                    notifyDataSetChanged();
+                }
+            }
+        }
 		
 	}
 

@@ -1,4 +1,4 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,9 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.zhangguoyu.app.CActionBar.CTab;
+import com.zhangguoyu.widget.CActionBar.CTab;
 import com.zhangguoyu.demo.actionbar.R;
-import com.zhangguoyu.widget.CMenu;
 
 public class CTitleActionBarView extends LinearLayout {
 	
@@ -30,6 +29,8 @@ public class CTitleActionBarView extends LinearLayout {
 	private CTabBarView mTabBar = null;
     private View mOptionsBar = null;
 	private TitleViewWrapper mTitleViewWrapper = null;
+
+    private OnBackButtonClickListener mBackButtonListener = new OnBackButtonClickListener();
 	
 	public CTitleActionBarView(Context context) {
 		super(context);
@@ -59,6 +60,7 @@ public class CTitleActionBarView extends LinearLayout {
 		
 		mBackButton = view;
 		if(view != null) {
+            mBackButton.setOnClickListener(mBackButtonListener);
 			mTitleBar.addView(view, 0);
 		}
 	}
@@ -389,6 +391,26 @@ public class CTitleActionBarView extends LinearLayout {
     public void setOnOptionsBarSelectedListener(CMenuBarView.OnMenuItemSelectedListener listener) {
         if (mOptionsBar != null && (mOptionsBar instanceof CMenuBarView)) {
             ((CMenuBarView) mOptionsBar).setOnMenuItemSelectedListener(listener);
+        }
+    }
+
+    public CTabBarView getTabBar() {
+        return mTabBar;
+    }
+
+    public void setOnBackButtonClickListener(OnClickListener listener) {
+        mBackButtonListener.listener = listener;
+    }
+
+    private final class OnBackButtonClickListener implements OnClickListener {
+
+        private OnClickListener listener = null;
+
+        @Override
+        public void onClick(View view) {
+            if (listener != null) {
+                listener.onClick(view);
+            }
         }
     }
 

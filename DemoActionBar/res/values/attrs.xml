@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <declare-styleable name="CBlockPagerXml">
-        <attr name="className" format="string" />
-        <attr name="title" format="string" />
-        <attr name="id" format="integer" />
-        <attr name="tag" format="string" />
-        <attr name="layout" format="reference"/>
-    </declare-styleable>
-    
-    <declare-styleable name="CBlockingView">
-        <attr name="blockClass" format="string" />
+
+    <declare-styleable name="CBlock">
+        <attr name="blockName" format="string" />
         <attr name="blockId" format="integer" />
         <attr name="blockTag" format="string" />
+        <attr name="blockLayout" format="reference"/>
+        <attr name="blockTitle" format="string" />
+    </declare-styleable>
+    
+    <declare-styleable name="CBlockingView" parent="CBlock">
     </declare-styleable>
 
     <declare-styleable name="CMenuBarView">
@@ -36,8 +33,8 @@
         <attr name="itemBottomPadding" format="dimension" />
         <attr name="itemTextSize" format="dimension" />
         <attr name="itemTextColor" format="dimension" />
-        <attr name="itemTextTypeface" />
-        <attr name="itemTextFamilyName"/>
+        <attr name="itemTextTypeface" format="integer"/>
+        <attr name="itemTextFamilyName" format="string"/>
         <attr name="itemTextStyle">
             <flag name="sans" value="1" />
             <flag name="serif" value="2" />
@@ -47,7 +44,7 @@
         <attr name="itemTextShadowDx" format="float" />
         <attr name="itemTextShadowDy" format="float" />
         <attr name="itemTextShadowRadius" format="float" />
-        <attr name="itemGravity" />
+        <attr name="itemGravity" format="integer"/>
     </declare-styleable>
 
     <declare-styleable name="AppTheme">

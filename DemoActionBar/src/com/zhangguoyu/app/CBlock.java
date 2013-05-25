@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,9 +86,13 @@ public class CBlock {
     private CBlockFragment mFragment = null;
     private int mId = NO_ID;
     private Bundle mSavedInstanceState = null;
+    private Bundle mArgs = null;
 	
 	private int mStateFlag = 0;
-	
+
+    void attachToActivity(CBlockActivity activity) {
+        mActivity = activity;
+    }
 	
     void attachToFragment(CBlockFragment fragment) {
         mRoot = this;
@@ -108,7 +114,9 @@ public class CBlock {
             if (contentParent != null) {
                 contentParent.removeView(mContentView);
             }
-            mContainer.removeAllViews();
+            if (mContainer.getChildCount() > 0) {
+                mContainer.removeAllViews();
+            }
             mContainer.addView(mContentView);
         }
 	}
@@ -120,7 +128,7 @@ public class CBlock {
 
         if (view instanceof CBlockingView) {
             CBlock block = ((CBlockingView) view).getBlock();
-            if (block != this) {
+            if (block != this && block != null) {
                 block.attachToParent(this, false);
             }
             return;
@@ -149,6 +157,7 @@ public class CBlock {
         mActivity = parent.getActivity();
         mSavedInstanceState = parent.getSavedInstanceState();
         mLayoutInflater = parent.getLayoutInflater();
+        mArgs = parent.getArguments();
 
         if (syncLifecycle) {
 
@@ -159,6 +168,13 @@ public class CBlock {
             if ((mStateFlag & FLAG_STATE_ON_CREATE_VIEW) != 0) {
                 mContentView = onCreateView(mLayoutInflater, mContainer, mSavedInstanceState);
                 if (mContentView != null) {
+                    ViewGroup p = (ViewGroup) mContentView.getParent();
+                    if (p != null) {
+                        p.removeView(mContentView);
+                    }
+                    if (mContainer.getChildCount() > 0) {
+                        mContainer.removeAllViews();
+                    }
                     mContainer.addView(mContentView);
                 }
             }
@@ -746,8 +762,107 @@ public class CBlock {
         return mSavedInstanceState;
     }
 
-    public void startBlock(int id, Bundle args) {
-
+    public void preStartBlock(CBlock targetBlock, Bundle args) {
     }
 
+    public void postStartBlock(CBlock targetBlock, Bundle args) {
+    }
+
+    public void startBlock(int targetBlockId, Bundle args) {
+    }
+
+    public void startBlock(Object targetBlockTag, Bundle args) {
+    }
+
+    public void startBlock(Class<?> targetBlockClass, Bundle args) {
+        if (mActivity != null && mActivity instanceof CBlockActivity) {
+            ((CBlockActivity) mActivity).startBlock(targetBlockClass, args);
+        }
+    }
+
+    public void startBlock(CBlock targetBlock, Bundle args) {
+    }
+
+    public void startBlockForResult(int targetBlockId, Bundle args) {
+    }
+
+    public void startBlockForResult(Object targetBlockTag, Bundle args) {
+    }
+
+    public void startBlockForResult(Class<?> targetBlockClass, Bundle args) {
+    }
+
+    public void startBlockForResult(CBlock targetBlock, Bundle args) {
+    }
+
+    public void finish() {
+        if (mActivity != null && mActivity instanceof CBlockActivity) {
+            ((CBlockActivity) mActivity).finishBlock();
+        }
+    }
+
+    public void onBackButtonClick() {
+        if (mSubBlocks != null) {
+            final int N = mSubBlocks.size();
+            for (int i=0; i<N; i++) {
+                final CBlock sub = mSubBlocks.get(i);
+                sub.onBackButtonClick();
+            }
+        }
+    }
+
+    public void setArguments(Bundle args) {
+        mArgs = args;
+    }
+
+    public Bundle getArguments() {
+        return mArgs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CBlock) {
+            final CBlock other = (CBlock) o;
+            final Object oTag = other.getTag();
+            final int oId = other.getId();
+            final String oName = other.getClass().getName();
+
+            return getClass().getName().equals(oName) &&
+                    (((mId!=NO_ID) && mId==oId)||
+                            (mTarget!=null && mTarget.equals(oTag)));
+        }
+        return super.equals(o);
+    }
+
+    public static class SavedState implements Parcelable {
+
+        Bundle savedInstanceState = null;
+
+        public SavedState(Parcel in) {
+            super();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+
+        }
+
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+
+            @Override
+            public SavedState createFromParcel(Parcel parcel) {
+                return new SavedState(parcel);
+            }
+
+            @Override
+            public SavedState[] newArray(int i) {
+                return new SavedState[i];
+            }
+        };
+    }
 }

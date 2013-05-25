@@ -3,11 +3,7 @@ package com.zhangguoyu.demo.actionbar;
 import android.os.Bundle;
 import android.view.Menu;
 
-import com.zhangguoyu.app.CActionBar;
-import com.zhangguoyu.app.CActionBarImpl;
-import com.zhangguoyu.app.CBlockActivity;
 import com.zhangguoyu.app.CPageBlockActivity;
-import com.zhangguoyu.widget.CBlockPager;
 import com.zhangguoyu.widget.CMenu;
 
 public class MainActivity extends CPageBlockActivity {
@@ -15,7 +11,7 @@ public class MainActivity extends CPageBlockActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addBlockFromResurce(R.xml.blocks);
+		loadBlocksFromResurce(R.xml.blocks);
 	}
 
 	@Override

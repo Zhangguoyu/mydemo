@@ -1,5 +1,6 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -7,6 +8,11 @@ import android.view.animation.Animation;
 
 public abstract class CActionBar {
 
+    public static final int TITLE_STYLE_SHOW_ONLY_MAIN_TITLE = 1;
+
+    public static final int TITLE_STYLE_SUBTITLED = 2;
+
+    public static final int TITLE_STYLE_CSTOCK = 3;
     /**
      * 设置logo视图
      * @param view
@@ -298,7 +304,8 @@ public abstract class CActionBar {
      * @return
      */
 	public abstract CActionBar removeAllTabs();
-
+    public abstract CActionBar setTitleStyle(int titleViewStyle);
+	
     /**
      * 设置底部导航栏背景
      * @param drawable
@@ -312,6 +319,102 @@ public abstract class CActionBar {
      * @return
      */
 	public abstract CActionBar setNavigationBarBackground(int resId);
+	
+	/**
+     * 设置导航按钮项的背景
+     * @param drawable
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuBackground(Drawable drawable);
+	
+	/**
+     * 设置导航按钮项的背景
+     * @param resId
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuBackground(int resId);
+	
+	/**
+     * 设置导航按钮间距
+     * @param margin
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuMargin(int margin);
+	
+	/**
+     * 设置导航按钮间距
+     * @param margin
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuMarginLeftAndRight(int margin);
+	
+	/**
+     * 设置导航按钮间距
+     * @param margin
+     * @return
+     */
+    public abstract CActionBar setNavigaitonMenuMarginTopAndBottom(int margin);
+	
+	/**
+     * 设置导航按钮间距
+     * @param margin
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuMargin(int left, int top, int right, int bottom);
+	
+	/**
+     * 设置导航按钮字体大小
+     * @param size
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuTextSize(float size);
+	
+	/**
+     * 设置导航字体颜色
+     * @param color
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuTextColor(ColorStateList color);
+	
+	/**
+     * 设置导航字体颜色
+     * @param color
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuTextColor(int color);
+
+    public abstract CActionBar setNavigationMenuTextColorResource(int colorResourceId);
+	
+	/**
+     * 设置导航按钮的字体样式
+     * @param tf
+     * @return
+     */
+    public abstract CActionBar setNavigationMenuTypeface(Typeface tf);
+	
+	/**
+     * 设置导航栏样式
+     * 包括：
+     * 导航栏背景
+     * 导航栏高度
+     * 导航栏按钮间距
+     * 导航栏按钮背景
+     * 导航栏字体大小
+     * 导航栏字体颜色
+     * 导航栏字体样式
+     * 导航栏字体阴影
+     *
+     * @param style
+     * @return
+     */
+    public abstract CActionBar setNavigationBarStyle(int style);
+	
+	/**
+     * 设置导航栏高度
+     * @param height
+     * @return
+     */
+    public abstract CActionBar setNavigationBarHeight(int height);
 
     /**
      * 设置tab栏背景
@@ -328,20 +431,6 @@ public abstract class CActionBar {
     public abstract CActionBar setTabBarBackground(int resId);
 
     /**
-     * 设置导航按钮项的背景
-     * @param drawable
-     * @return
-     */
-    public abstract CActionBar setNavigationMenuBackground(Drawable drawable);
-
-    /**
-     * 设置导航按钮项的背景
-     * @param resId
-     * @return
-     */
-    public abstract CActionBar setNavigationMenuBackground(int resId);
-
-    /**
      * 设置tab按钮项的背景
      * @param drawable
      * @return
@@ -356,13 +445,6 @@ public abstract class CActionBar {
     public abstract CActionBar setTabMenuBackground(int resId);
 
     /**
-     * 设置导航按钮间距
-     * @param margin
-     * @return
-     */
-    public abstract CActionBar setNavigationMenuMargin(int margin);
-
-    /**
      * 设置tab按钮间距
      * @param margin
      * @return
@@ -370,11 +452,28 @@ public abstract class CActionBar {
     public abstract CActionBar setTabMenuMargin(int margin);
 
     /**
-     * 设置导航按钮字体大小
-     * @param size
+     * 设置tab按钮项的左右边距
+     * @param margin
      * @return
      */
-    public abstract CActionBar setNavigationMenuTextSize(float size);
+    public abstract CActionBar setTabMenuMarginLeftAndRight(int margin);
+
+    /**
+     * 设置tab按钮项的上下边距
+     * @param margin
+     * @return
+     */
+    public abstract CActionBar setTabMenuMarginTopAndBottom(int margin);
+
+    /**
+     * 设置按钮项四周边距
+     * @param left
+     * @param top
+     * @param right
+     * @param bottom
+     * @return
+     */
+    public abstract CActionBar setTabMenuMenuMargin(int left, int top, int right, int bottom);
 
     /**
      * 设置tab字体大小
@@ -382,13 +481,13 @@ public abstract class CActionBar {
      * @return
      */
     public abstract CActionBar setTabMenuTextSize(float size);
-
-    /**
-     * 设置导航字体颜色
+	
+	/**
+     * 设置tab字体颜色
      * @param color
      * @return
      */
-    public abstract CActionBar setNavigationMenuTextColor(int color);
+    public abstract CActionBar setTabMenuTextColor(ColorStateList color);
 
     /**
      * 设置tab字体颜色
@@ -397,12 +496,7 @@ public abstract class CActionBar {
      */
     public abstract CActionBar setTabMenuTextColor(int color);
 
-    /**
-     * 设置导航按钮的字体样式
-     * @param tf
-     * @return
-     */
-    public abstract CActionBar setNavigationMenuTypeface(Typeface tf);
+    public abstract CActionBar setTabMenuTextColorResource(int colorResId);
 
     /**
      * 设置tab按钮的字体样式
@@ -410,23 +504,6 @@ public abstract class CActionBar {
      * @return
      */
     public abstract CActionBar setTabMenuTypeface(Typeface tf);
-
-    /**
-     * 设置导航栏样式
-     * 包括：
-     * 导航栏背景
-     * 导航栏高度
-     * 导航栏按钮间距
-     * 导航栏按钮背景
-     * 导航栏字体大小
-     * 导航栏字体颜色
-     * 导航栏字体样式
-     * 导航栏字体阴影
-     *
-     * @param style
-     * @return
-     */
-    public abstract CActionBar setNavigationBarStyle(int style);
 
     /**
      * 设置tab栏样式
@@ -446,18 +523,13 @@ public abstract class CActionBar {
     public abstract CActionBar setTabMenuBarStyle(int style);
 
     /**
-     * 设置导航栏高度
-     * @param height
-     * @return
-     */
-    public abstract CActionBar setNavigationBarHeight(int height);
-
-    /**
      * 设置tab栏高度
      * @param height
      * @return
      */
     public abstract CActionBar setTabBarHeight(int height);
+
+    public abstract CActionBar setOnBackButtonClickListener(View.OnClickListener listener);
 
     /**
      * ActionBar的标签控件

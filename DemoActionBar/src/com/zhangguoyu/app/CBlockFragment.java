@@ -7,9 +7,11 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 
 import android.widget.FrameLayout;
@@ -18,6 +20,8 @@ import com.zhangguoyu.widget.CMenu;
 import com.zhangguoyu.widget.CMenuItem;
 
 public class CBlockFragment extends Fragment {
+
+    private static final String LOG_TAG = "CBlockFragment";
 	
 	private CBlock mBlock = null;
     private CFrameLayoutBlock mBlockRootLayout = null;
@@ -31,7 +35,7 @@ public class CBlockFragment extends Fragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
         mBlockRootLayout = new CFrameLayoutBlock(activity.getBaseContext());
-        mBlockRootLayout.setBlock(mBlock);
+//        mBlockRootLayout.setBlock(mBlock);
         mBlock.setContainer(mBlockRootLayout);
 		mBlock.dispatchOnAttach(activity);
 	}
@@ -58,7 +62,8 @@ public class CBlockFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//mBlock.dispatchOnCreate(savedInstanceState);
-	}
+        Log.d(LOG_TAG, "@@@ onCreate " + mBlock.getClass().getSimpleName());
+    }
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +79,10 @@ public class CBlockFragment extends Fragment {
             mBlockRootLayout.addView(view, new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         }
+        ViewParent parent = mBlockRootLayout.getParent();
+        if (parent != null && parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(mBlockRootLayout);
+        }
 		return mBlockRootLayout;
 	}
 	
@@ -81,6 +90,8 @@ public class CBlockFragment extends Fragment {
 	public void onDestroy() {
 		super.onDestroy();
 		//mBlock.dispatchOnDestroy();
+
+        Log.d(LOG_TAG, "@@@ onDestroy " + mBlock.getClass().getSimpleName());
 	}
 	
 	@Override
@@ -119,12 +130,16 @@ public class CBlockFragment extends Fragment {
 	public void onPause() {
 		super.onPause();
 		mBlock.dispatchOnPause();
+
+        Log.d(LOG_TAG, "@@@ onPause " + mBlock.getClass().getSimpleName());
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
 		mBlock.dispatchOnResume();
+
+        Log.d(LOG_TAG, "@@@ onResume " + mBlock.getClass().getSimpleName());
 	}
 	
 	@Override
@@ -137,12 +152,16 @@ public class CBlockFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		mBlock.dispatchOnStart();
+
+        Log.d(LOG_TAG, "@@@ onStart " + mBlock.getClass().getSimpleName());
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		mBlock.dispatchOnStop();
+
+        Log.d(LOG_TAG, "@@@ onStop " + mBlock.getClass().getSimpleName());
 	}
 	
 	@Override
@@ -181,8 +200,12 @@ public class CBlockFragment extends Fragment {
 		mBlock.onOptionsMenuItemSelected(item);
 	}
 
-    public int getCurrentState() {
+    int getCurrentState() {
         return 0;
+    }
+
+    public CBlock getBlock() {
+        return mBlock;
     }
 
 }

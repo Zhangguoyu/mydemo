@@ -6,6 +6,6 @@ public interface CBlockingView {
 	
 	public CBlock getBlock();
 
-    public void setBlock(CBlock block);
+    public void bindBlock(String name, int id, int layoutResId, Object tag);
 
 }

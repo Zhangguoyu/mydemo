@@ -1,4 +1,4 @@
-package com.zhangguoyu.app;
+package com.zhangguoyu.widget;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.zhangguoyu.app.CActionBar.CTab;
+import com.zhangguoyu.widget.CActionBar.CTab;
 import com.zhangguoyu.demo.actionbar.R;
 
 
@@ -105,6 +105,15 @@ public class CTabBarView extends CButtonBarView {
         for (int i=0; i<N; i++) {
             final View child = getChildAt(i);
             child.setPadding(left, top, right, bottom);
+        }
+    }
+
+    @Override
+    public void onChangeItemTextShadow(int color, float dx, float dy, float radius) {
+        final int N = getChildCount();
+        for (int i=0; i<N; i++) {
+            final TabView child = (TabView) getChildAt(i);
+            child.mTxvTitle.setShadowLayer(radius, dx, dy, color);
         }
     }
 
